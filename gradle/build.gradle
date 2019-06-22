@@ -1,0 +1,35 @@
+// Configure the repositories and dependencies needed for Gradle itself in buildscript block
+buildscript {
+
+    //Define some shared properties
+    ext {
+        compileSdkVersion = 28
+        supportLibVersion = "28.0.0"
+        kotlin_version = '1.3.31'
+    }
+
+    // Pass repositories for Gradle to search and download dependencies
+    repositories {
+        google()
+        jcenter()
+    }
+
+    // Pass dependencies for Gradle to build project
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+// Configure the global repositories and depenendencies used by all modules
+allprojects {
+   repositories {
+       google()
+       jcenter()
+   }
+}
+
+// Create some tasks if needed
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

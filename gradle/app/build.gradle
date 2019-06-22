@@ -1,0 +1,104 @@
+//apply plugins to build and makes android block available to build options
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+// Configure Android specific build options
+android {
+
+    // Define some compile and build properties
+    compileSdkVersion 28
+
+    // Specify default settings and entries for all build variant
+    defaultConfig {
+        applicationId "pl.androidcode.app"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // Configure multiple build types like apply Proguard for release and make debug debuggable
+    buildTypes {
+        release {
+            minifyEnabled true
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    // Configure multiple product flavors, override defaultConfig block settings
+    // At least one flavorDimensions must be declared, they combine multiple flavors
+    flavorDimensions "stage", "version"
+    productFlavors {
+        free {
+            dimension "version"
+            applicationIdSuffix ".free"
+            versionNameSuffix "-free"
+        }
+        paid {
+            dimension "version"
+            applicationIdSuffix ".paid"
+            versionNameSuffix "-paid"
+        }
+        dev {
+            dimension "stage"
+            resConfigs "pl", "xxhdpi"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+        }
+        prod {
+            dimension "stage"
+            applicationIdSuffix ".prod"
+            versionNameSuffix "-prod"
+        }
+    }
+
+    // Use filter to disable some build variant
+    variantFilter { variant ->
+        def flavors = variant.flavors*.name
+        def types = variant.buildType*.name
+        if (types.contains("debug") && flavors.contains("paid")) {
+            setIgnore(true)
+        }
+    }
+
+    // Configure different APK builds that each contains only needed code and resources for density and abi
+    // Notice that every build must have unique version code for store
+    splits {
+        density {
+            enable true
+            exclude "ldpi"
+        }
+        abi {
+            enable gradle.startParameter.taskNames.any { it.contains("release") }
+            universalApk false
+        }
+    }
+}
+
+// Provide dependencies needed only for module itself
+dependencies {
+    //local binaries
+    implementation fileTree(dir: 'libs', include: ['*.jar']) 
+
+    //remote binaries
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version' 
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.core:core-ktx:1.0.2'
+
+    //add build type or flavor prefix to use implementation only for this variant
+    paidImplementation 'com.android.billingclient:billing:2.0.1'
+
+    //unit and instrumental tests
+    //notice that test and androidTest are source sets like any other build variant
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
