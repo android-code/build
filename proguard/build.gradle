@@ -1,0 +1,31 @@
+android {
+
+    buildTypes {
+        release {
+            // Enable code shrinking, obfuscation, optimization
+            minifyEnabled true
+
+            // Enable resource shrinking, requires minifyEnabled to be applied
+            shrinkResources true
+
+            // Specify ProGuard rules files
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            // don't need to enable minifyEnabled and shrinkResources for debug purpose
+        }
+    }
+
+    flavorDimensions "version"
+    productFlavors {
+        free {
+            //...
+            dimension "version"
+            proguardFile 'free-rules.pro' //add extra rules for flavors
+        }
+        paid {
+            //...
+            dimension "version"
+        }
+    }
+}
