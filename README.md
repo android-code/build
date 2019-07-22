@@ -9,5 +9,7 @@ This repository describe following topics:
 - obfuscation
 - downsize app
 - Android app build process
+- build variants
+- product flavors
 - APK file
 - AAB file
